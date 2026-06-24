@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do It Now – Smart Reminder System (Google Auth Only)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a, #1e1b4b);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #4f46e5;
+            --accent-hover: #3730a3;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #d97706;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .hidden { display: none !important; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Auth Section (Simplified for Google Only) */
+        #authSection {
+            max-width: 420px;
+            margin: 15vh auto;
+            text-align: center;
+        }
+
+        #authSection h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        #authSection h2 i {
+            color: var(--accent);
+        }
+
+        #authSection p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        #googleAuthBtn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 1rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+        }
+
+        #googleAuthBtn:hover {
+            background: #357ae8;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
+        header h1 i { color: var(--accent); margin-right: 8px; }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            border-radius: 50%;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card { text-align: center; padding: 1.2rem; }
+        .stat-card h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .stat-card .number { font-size: 2rem; font-weight: 700; color: var(--accent); }
+
+        /* Form Controls */
+        input, select, button {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        input:focus, select:focus { border-color: var(--accent); }
+
+        .task-form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .input-group { position: relative; display: flex; align-items: center; }
+
+        .voice-btn {
+            position: absolute; right: 5px; width: 35px; height: 35px; padding: 0;
+            background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+        }
+        .voice-btn.recording { color: var(--danger); animation: pulse 1.5s infinite; }
+
+        button.btn-primary { background: var(--accent); color: white; border: none; font-weight: 600; cursor: pointer; }
+        button.btn-primary:hover { background: var(--accent-hover); }
+
+        /* Tasks Layout */
+        .task-sections { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        .section-title { font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .task-item {
+            display: flex; flex-direction: column; gap: 1rem; padding: 1rem; margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.02); border-radius: 12px; border-left: 5px solid var(--accent);
+            animation: fadeIn 0.4s ease;
+        }
+        .task-item.completed { border-left-color: var(--success); opacity: 0.7; }
+        .task-item.alarm-active { border-left-color: var(--danger); animation: flashRed 1s infinite alternate; }
+
+        .task-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .task-title { font-weight: 600; font-size: 1.1rem; word-break: break-word; }
+        .task-item.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
+
+        .timer-badge {
+            background: rgba(99, 102, 241, 0.15); color: var(--accent); padding: 0.3rem 0.6rem;
+            border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .task-item.alarm-active .timer-badge { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .task-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+        .action-btn { padding: 0.5rem 0.8rem; width: auto; font-size: 0.85rem; cursor: pointer; border-radius: 6px; }
+
+        .btn-success { background: var(--success); color: white; border: none; }
+        .btn-warning { background: var(--warning); color: white; border: none; }
+        .btn-danger { background: var(--danger); color: white; border: none; }
+        .btn-secondary { background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes flashRed { from { background: rgba(255, 255, 255, 0.02); } to { background: rgba(239, 68, 68, 0.1); } }
+
+        @media (max-width: 768px) {
+            .task-form-grid { grid-template-columns: 1fr; }
+            .task-actions { justify-content: flex-start; width: 100%; }
+            .action-btn { flex-grow: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="authSection" class="glass-panel">
+            <h2><i class="fa-solid fa-clock-rotate-left"></i> Do It Now</h2>
+            <p>Smart Reminder System</p>
+            
+            <button type="button" id="googleAuthBtn">
+                <i class="fa-brands fa-google"></i> Continue with Google
+            </button>
+        </div>
+
+        <div id="appSection" class="hidden">
+            <header>
+                <h1><i class="fa-solid fa-clock-rotate-left"></i> Do It Now</h1>
+                <div class="header-controls">
+                    <span id="userEmailDisplay" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;"></span>
+                    <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <i class="fa-solid fa-sun" id="themeIcon"></i>
+                    </button>
+                    <button class="icon-btn" id="logoutBtn" title="Logout" style="color: var(--danger);">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="glass-panel dashboard">
+                <div class="stat-card">
+                    <h3>Total Tasks</h3>
+                    <div class="number" id="totalTasks">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <div class="number" id="pendingTasks">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed</h3>
+                    <div class="number" id="completedTasks">0</div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <form id="taskForm">
+                    <input type="hidden" id="editTaskId">
+                    <div class="task-form-grid">
+                        <div class="input-group">
+                            <input type="text" id="taskTitle" placeholder="What needs to be done?" required>
+                            <button type="button" class="voice-btn" id="voiceBtn" title="Voice Input">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <input type="number" id="timeDuration" placeholder="Duration" min="1" required>
+                        </div>
+                        <div>
+                            <select id="timeUnit">
+                                <option value="minutes">Minutes</option>
+                                <option value="hours">Hours</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn-primary" id="submitBtn">Add Task</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="task-sections">
+                <div class="glass-panel">
+                    <h2 class="section-title"><i class="fa-solid fa-hourglass-half" style="color:var(--accent)"></i> Active Reminders</h2>
+                    <div id="activeTasksContainer"></div>
+                </div>
+                <div class="glass-panel">
+                    <h2 class="section-title"><i class="fa-solid fa-circle-check" style="color:var(--success)"></i> Completed History</h2>
+                    <div id="completedTasksContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAQdksRQrM_bKbqV75W4EZVW519ujR4k4",
+            authDomain: "reminder-a3828.firebaseapp.com",
+            projectId: "reminder-a3828",
+            storageBucket: "reminder-a3828.firebasestorage.app",
+            messagingSenderId: "419710689218",
+            appId: "1:419710689218:web:97c90ca7670c5f8ee6805b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let tasks = [];
+        let audioCtx = null;
+        let alarmIntervals = {};
+
+        const authSection = document.getElementById('authSection');
+        const appSection = document.getElementById('appSection');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+
+        // Google Authentication Sign In Popup
+        document.getElementById('googleAuthBtn').addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                alert("Google Auth Error: " + error.message);
+            }
+        });
+
+        // Logout Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth);
+            tasks.forEach(t => stopSystemAlarm(t.id));
+        });
+
+        // Auth State Observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                authSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                userEmailDisplay.innerText = user.email;
+                
+                tasks = JSON.parse(localStorage.getItem(`doItNowTasks_${user.uid}`)) || [];
+                
+                if ("Notification" in window && Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+                renderApp();
+            } else {
+                currentUser = null;
+                authSection.classList.remove('hidden');
+                appSection.classList.add('hidden');
+            }
+        });
+
+        // Theme Toggle
+        window.toggleTheme = () => {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.className = 'fa-solid fa-sun';
+            }
+        };
+
+        // Voice Input Feature
+        document.getElementById('voiceBtn').addEventListener('click', () => {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return alert("Speech recognition not supported.");
+            const recognition = new SpeechRecognition();
+            const voiceBtn = document.getElementById('voiceBtn');
+            recognition.onstart = () => voiceBtn.classList.add('recording');
+            recognition.onend = () => voiceBtn.classList.remove('recording');
+            recognition.onresult = (event) => {
+                document.getElementById('taskTitle').value = event.results[0][0].transcript;
+            };
+            recognition.start();
+        });
+
+        // Save / Edit Task
+        document.getElementById('taskForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idField = document.getElementById('editTaskId').value;
+            const title = document.getElementById('taskTitle').value;
+            const duration = parseFloat(document.getElementById('timeDuration').value);
+            const unit = document.getElementById('timeUnit').value;
+            
+            const totalMs = duration * (unit === 'hours' ? 3600000 : 60000);
+            const targetTime = Date.now() + totalMs;
+
+            if (idField) {
+                tasks = tasks.map(t => t.id === idField ? { ...t, title, duration, unit, targetTime, isAlarming: false } : t);
+                stopSystemAlarm(idField);
+            } else {
+                tasks.push({
+                    id: 'task_' + Date.now(),
+                    title, duration, unit, targetTime,
+                    completed: false, isAlarming: false
+                });
+            }
+            syncStorageAndRender();
+            e.target.reset();
+            document.getElementById('editTaskId').value = '';
+            document.getElementById('submitBtn').innerText = 'Add Task';
+        });
+
+        // Global Timer Tick
+        setInterval(() => {
+            if (!currentUser) return;
+            let changed = false;
+            tasks.forEach(task => {
+                if (!task.completed && !task.isAlarming && (task.targetTime - Date.now() <= 0)) {
+                    task.isAlarming = true;
+                    changed = true;
+                    triggerAlarm(task);
+                }
+            });
+            if (changed) syncStorageAndRender();
+            renderTimersOnly();
+        }, 1000);
+
+        function formatTime(ms) {
+            if (ms <= 0) return "00:00:00";
+            let seconds = Math.floor((ms / 1000) % 60);
+            let minutes = Math.floor((ms / (1000 * 60)) % 60);
+            let hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function renderTimersOnly() {
+            tasks.forEach(task => {
+                const timerEl = document.getElementById(`timer-${task.id}`);
+                if (timerEl) {
+                    if (task.completed) timerEl.innerHTML = `<i class="fa-solid fa-check"></i> Finished`;
+                    else if (task.isAlarming) timerEl.innerHTML = `<i class="fa-solid fa-bell"></i> Time's up!`;
+                    else timerEl.innerHTML = `<i class="fa-solid fa-hourglass-start"></i> ${formatTime(task.targetTime - Date.now())}`;
+                }
+            });
+        }
+
+        function triggerAlarm(task) {
+            setTimeout(() => { alert(`Reminder: ${task.title}`); }, 100);
+            if (Notification.permission === "granted") {
+                new Notification("Do It Now!", { body: task.title, icon: "https://cdn-icons-png.flaticon.com/512/1827/1827347.png" });
+            }
+
+            alarmIntervals[task.id] = setInterval(() => {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15); 
+            }, 1000);
+
+            const speakLoop = () => {
+                if (!task.isAlarming || task.completed) return;
+                const utterance = new SpeechSynthesisUtterance(`Time to do: ${task.title}`);
+                utterance.onend = () => setTimeout(speakLoop, 3000);
+                window.speechSynthesis.speak(utterance);
+            };
+            speakLoop();
+        }
+
+        window.stopSystemAlarm = (taskId) => {
+            if (alarmIntervals[taskId]) { clearInterval(alarmIntervals[taskId]); delete alarmIntervals[taskId]; }
+            window.speechSynthesis.cancel();
+        }
+
+        window.completeTask = (id) => {
+            stopSystemAlarm(id);
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: true, isAlarming: false } : t);
+            syncStorageAndRender();
+        }
+
+        window.snoozeTask = (id) => {
+            stopSystemAlarm(id);
+            tasks = tasks.map(t => t.id === id ? { ...t, targetTime: Date.now() + 5 * 60000, isAlarming: false } : t);
+            syncStorageAndRender();
+        }
+
+        window.editTask = (id) => {
+            const target = tasks.find(t => t.id === id);
+            if (!target) return;
+            document.getElementById('editTaskId').value = target.id;
+            document.getElementById('taskTitle').value = target.title;
+            document.getElementById('timeDuration').value = target.duration;
+            document.getElementById('timeUnit').value = target.unit;
+            document.getElementById('submitBtn').innerText = 'Update Task';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.deleteTask = (id) => {
+            stopSystemAlarm(id);
+            tasks = tasks.filter(t => t.id !== id);
+            syncStorageAndRender();
+        }
+
+        function syncStorageAndRender() {
+            if (currentUser) {
+                localStorage.setItem(`doItNowTasks_${currentUser.uid}`, JSON.stringify(tasks));
+            }
+            renderApp();
+        }
+
+        function renderApp() {
+            const activeContainer = document.getElementById('activeTasksContainer');
+            const completedContainer = document.getElementById('completedTasksContainer');
+            
+            activeContainer.innerHTML = ''; completedContainer.innerHTML = '';
+            let total = tasks.length, pending = 0, completed = 0;
+
+            tasks.forEach(task => {
+                const node = document.createElement('div');
+                node.className = `task-item ${task.completed ? 'completed' : ''} ${task.isAlarming ? 'alarm-active' : ''}`;
+                
+                let ops = '';
+                if (!task.completed) {
+                    pending++;
+                    ops = `
+                        <button class="action-btn btn-success" onclick="completeTask('${task.id}')"><i class="fa-solid fa-check"></i> Complete</button>
+                        ${task.isAlarming ? `<button class="action-btn btn-warning" onclick="snoozeTask('${task.id}')"><i class="fa-solid fa-bed"></i> Snooze</button>` : ''}
+                        <button class="action-btn btn-secondary" onclick="editTask('${task.id}')"><i class="fa-solid fa-pen"></i></button>
+                    `;
+                } else { completed++; }
+
+                node.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-title">${task.title}</div>
+                        <span class="timer-badge" id="timer-${task.id}"></span>
+                    </div>
+                    <div class="task-actions">
+                        ${ops}
+                        <button class="action-btn btn-danger" onclick="deleteTask('${task.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+
+                if (task.completed) completedContainer.appendChild(node);
+                else activeContainer.appendChild(node);
+            });
+
+            document.getElementById('totalTasks').innerText = total;
+            document.getElementById('pendingTasks').innerText = pending;
+            document.getElementById('completedTasks').innerText = completed;
+            renderTimersOnly();
+        }
+    </script>
+</body>
+</html>
